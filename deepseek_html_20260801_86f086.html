@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Менің Омыртқам - Жеке Көмекші</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #1e2a3a;
+            padding: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+        }
+
+        /* Жоғарғы атау */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0 20px 0;
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0b3954;
+        }
+        .header span {
+            background: #dbeafe;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1e4a6b;
+        }
+
+        /* Төменгі навигация */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 12px 0;
+            max-width: 480px;
+            margin: 0 auto;
+            border-radius: 24px 24px 0 0;
+            z-index: 100;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #8a9aa8;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 20px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .nav-btn.active {
+            color: #0b6e9e;
+            background: #e6f0fa;
+        }
+        .nav-btn svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 2px;
+            fill: currentColor;
+        }
+
+        .page {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            0% { opacity: 0.5; transform: translateY(4px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Карточкалар */
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 18px 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eef3f8;
+        }
+        .card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge-green { color: #0b7e3d; background: #e2f3e5; padding: 2px 10px; border-radius: 30px; font-size: 12px; }
+        .badge-red { color: #a11f2c; background: #fde7ea; padding: 2px 10px; border-radius: 30px; font-size: 12px; }
+
+        /* Таймер */
+        .timer-display {
+            font-size: 44px;
+            font-weight: 700;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            padding: 10px 0;
+            color: #0b3954;
+        }
+        .timer-label {
+            text-align: center;
+            font-size: 14px;
+            color: #5b6f82;
+            margin-bottom: 16px;
+        }
+        .timer-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #eef3f8;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #1e2a3a;
+            cursor: pointer;
+            transition: 0.15s;
+            flex: 1;
+            min-width: 80px;
+        }
+        .btn-primary { background: #0b6e9e; color: white; }
+        .btn-success { background: #1a8a4a; color: white; }
+        .btn-danger { background: #c13b4b; color: white; }
+        .btn:active { transform: scale(0.96); }
+
+        /* Жаттығу тізімі */
+        .exercise-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f4f9;
+        }
+        .exercise-item:last-child { border-bottom: none; }
+        .exercise-info { display: flex; align-items: center; gap: 10px; }
+        .exercise-icon { width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .icon-safe { background: #e2f3e5; color: #0b7e3d; }
+        .icon-forbidden { background: #fde7ea; color: #a11f2c; }
+        .exercise-name { font-weight: 500; font-size: 14px; }
+        .exercise-desc { font-size: 12px; color: #6a7e91; }
+        .check-btn { 
+            width: 32px; height: 32px; border-radius: 30px; border: 2px solid #d0d9e0; 
+            background: white; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+        }
+        .check-btn.done { background: #1a8a4a; border-color: #1a8a4a; color: white; }
+
+        /* Ауырсыну сырғытпасы */
+        .slider-container { padding: 4px 0; }
+        .slider-container input { width: 100%; accent-color: #0b6e9e; height: 6px; }
+        .pain-value { font-size: 28px; font-weight: 700; color: #0b3954; text-align: center; }
+        .pain-labels { display: flex; justify-content: space-between; font-size: 12px; color: #6a7e91; }
+
+        .history-list { margin-top: 12px; }
+        .history-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eef3f8; font-size: 14px; }
+
+        .tip-item { padding: 10px 0; border-bottom: 1px solid #f0f4f9; }
+        .tip-item:last-child { border-bottom: none; }
+        .tip-item strong { display: block; font-size: 14px; color: #0b3954; }
+        .tip-item p { font-size: 13px; color: #4a5f72; margin-top: 4px; }
+
+        .empty-state { text-align: center; color: #8a9aa8; padding: 20px 0; font-size: 14px; }
+
+        /* Жауапты дизайн (телефонға ыңғайлы) */
+        @media (max-width: 400px) {
+            .timer-display { font-size: 36px; }
+            .nav-btn { font-size: 10px; padding: 2px 8px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🦴 Менің Омыртқам</h1>
+    <span>17 жас</span>
+</div>
+
+<!-- БЕТ 1: ҮЙ -->
+<div id="page-home" class="page active">
+    <div class="card">
+        <h3>👋 Бүгінгі жағдай</h3>
+        <div id="today-pain-summary" style="font-size: 15px; color: #1e2a3a;">Ауырсыну дерегі жоқ</div>
+        <div style="margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <span id="exercises-done-today" style="background: #eef3f8; padding: 4px 12px; border-radius: 30px; font-size: 13px;">🏋️ 0/6 жасалды</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>📋 Соңғы 7 күн ауырсыну</h3>
+        <div id="pain-chart" style="display: flex; justify-content: space-between; align-items: flex-end; height: 80px; gap: 4px; padding: 8px 0;">
+            <!-- JS толтырады -->
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6a7e91; margin-top: 4px;">
+            <span>7 күн бұрын</span>
+            <span>Бүгін</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>📌 Университет кеңесі</h3>
+        <div style="background: #e6f0fa; padding: 12px; border-radius: 12px; font-size: 14px; color: #0b3954;">
+            💡 Әр 30 минут сайын тұрып, 1 минут жүріңіз. Дәріс кезінде артқы қатарда тұрып тыңдауға рұқсат сұраңыз.
+        </div>
+    </div>
+</div>
+
+<!-- БЕТ 2: ТАЙМЕР -->
+<div id="page-timer" class="page">
+    <div class="card">
+        <h3>⏱️ Отыру / Тұру режимі</h3>
+        <div class="timer-display" id="timer-display">30:00</div>
+        <div class="timer-label" id="timer-label">📖 Отыр (зерттеу режимі)</div>
+        <div class="timer-buttons">
+            <button class="btn btn-primary" id="timer-start">▶ Бастау</button>
+            <button class="btn" id="timer-pause">⏸ Тоқта</button>
+            <button class="btn btn-danger" id="timer-reset">⟲ Қалпына келтіру</button>
+        </div>
+        <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center;">
+            <button class="btn" id="set-study" style="flex:1;">📚 30мин</button>
+            <button class="btn" id="set-break" style="flex:1;">🚶 1мин</button>
+        </div>
+    </div>
+    <div class="card">
+        <h3>🔔 Ереже</h3>
+        <p style="font-size: 14px; color: #2c3e50;">Сигнал бергенде: <strong>тұрып, 1 минут жай жүріңіз</strong> немесе иығыңызды артқа айналдырыңыз. Бұл дискіге түсетін қысымды азайтады.</p>
+    </div>
+</div>
+
+<!-- БЕТ 3: ЖАТТЫҒУЛАР -->
+<div id="page-exercises" class="page">
+    <div class="card">
+        <h3>🟢 Рұқсат етілген (қауіпсіз)</h3>
+        <div id="safe-exercises"></div>
+    </div>
+    <div class="card">
+        <h3>🔴 Тыйым салынған (өте қауіпті)</h3>
+        <div id="forbidden-exercises"></div>
+    </div>
+</div>
+
+<!-- БЕТ 4: АУЫРСЫНУ КҮНДЕЛІГІ -->
+<div id="page-pain" class="page">
+    <div class="card">
+        <h3>😣 Бүгінгі ауырсыну деңгейі</h3>
+        <div class="slider-container">
+            <input type="range" min="0" max="10" value="0" id="pain-slider">
+            <div class="pain-value" id="pain-value-display">0 / 10</div>
+            <div class="pain-labels"><span>Ауырсыну жоқ</span><span>Төзгісіз</span></div>
+        </div>
+        <div style="margin-top: 12px;">
+            <input type="text" id="pain-note" placeholder="Ескертпе (мысалы: кешке аяқ ұйыды)" style="width:100%; padding:10px; border-radius:12px; border:1px solid #d0d9e0; font-size:14px;">
+            <button class="btn btn-success" id="save-pain" style="width:100%; margin-top:10px;">✅ Сақтау</button>
+        </div>
+    </div>
+    <div class="card">
+        <h3>📊 Күнделік тарихы</h3>
+        <div id="pain-history" class="history-list"></div>
+    </div>
+</div>
+
+<!-- БЕТ 5: КЕҢЕСТЕР -->
+<div id="page-tips" class="page">
+    <div class="card">
+        <h3>🎓 Университетте аман қалу</h3>
+        <div class="tip-item"><strong>🎒 Рюкзак</strong><p>Екі иыққа да асыныңыз. Салмағы 3-4 кг-нан аспасын. Ауыр кітаптарды қолмен көтермеңіз.</p></div>
+        <div class="tip-item"><strong>🪑 Орындық</strong><p>Бел мен орындық арасына жастықша (скрученный полотенце) қойыңыз. Аяқ табаны еденге толық тиюі керек.</p></div>
+        <div class="tip-item"><strong>🚶 Қозғалыс</strong><p>Жұп арасында 10 минут серуендеңіз. Баспалдақпен көтерілу (төмен түсу емес!) – пайдалы.</p></div>
+        <div class="tip-item"><strong>🧊 Ауырса</strong><p>Дәріс арасында суық компресс (орамалға мұз) белге 10 минутқа қою – ісінуді басады.</p></div>
+        <div class="tip-item"><strong>💬 Профессор</strong><p>Кураторға диагнозыңызды айтып, тұрып тыңдауға немесе ерте шығуға рұқсат сұраңыз. Бұл – сіздің құқығыңыз.</p></div>
+    </div>
+</div>
+
+<!-- ТӨМЕНГІ НАВИГАЦИЯ -->
+<div class="nav">
+    <button class="nav-btn active" data-page="page-home">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Үй
+    </button>
+    <button class="nav-btn" data-page="page-timer">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+        Таймер
+    </button>
+    <button class="nav-btn" data-page="page-exercises">
+        <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5v2h14V3zm0 4H5v14h14V7zM7 9h10v2H7V9zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>
+        Жаттығу
+    </button>
+    <button class="nav-btn" data-page="page-pain">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13v4h-5v2h5v4l5-5z"/></svg>
+        Ауырсыну
+    </button>
+    <button class="nav-btn" data-page="page-tips">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        Кеңестер
+    </button>
+</div>
+
+<script>
+    // -------------------------------------------------------------
+    // 1. НАВИГАЦИЯ
+    // -------------------------------------------------------------
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const pages = {
+        home: document.getElementById('page-home'),
+        timer: document.getElementById('page-timer'),
+        exercises: document.getElementById('page-exercises'),
+        pain: document.getElementById('page-pain'),
+        tips: document.getElementById('page-tips')
+    };
+
+    navBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            navBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const pageId = this.dataset.page;
+            Object.values(pages).forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        });
+    });
+
+    // -------------------------------------------------------------
+    // 2. ТАЙМЕР
+    // -------------------------------------------------------------
+    let timerInterval = null;
+    let timeLeft = 30 * 60; // секунд
+    let isStudy = true; // true=отыр, false=тұру
+    const display = document.getElementById('timer-display');
+    const label = document.getElementById('timer-label');
+
+    function updateDisplay() {
+        const mins = Math.floor(timeLeft / 60);
+        const secs = timeLeft % 60;
+        display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        if (isStudy) {
+            label.textContent = '📖 Отыр (зерттеу режимі)';
+        } else {
+            label.textContent = '🚶 Тұру (демалу)';
+        }
+    }
+
+    function switchMode() {
+        if (isStudy) {
+            // Отыр аяқталды -> тұру режиміне өту
+            isStudy = false;
+            timeLeft = 60; // 1 минут
+            if (navigator.vibrate) navigator.vibrate(300);
+            alert('🔔 30 минут отырдыңыз! Тұрып, 1 минут жүріңіз.');
+        } else {
+            // Тұру аяқталды -> отыр режиміне өту
+            isStudy = true;
+            timeLeft = 30 * 60;
+            if (navigator.vibrate) navigator.vibrate(300);
+            alert('🔔 1 минут тұрдыңыз! Енді отыруға болады. Арқаңызды түзу ұстаңыз.');
+        }
+        updateDisplay();
+    }
+
+    document.getElementById('timer-start').addEventListener('click', function() {
+        if (timerInterval) return;
+        timerInterval = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                switchMode();
+                // Қайта бастау (автоматты түрде келесі режим)
+                setTimeout(() => {
+                    if (!timerInterval) {
+                        timerInterval = setInterval(innerTick, 1000);
+                    }
+                }, 500);
+                return;
+            }
+            timeLeft--;
+            updateDisplay();
+        }, 1000);
+    });
+
+    document.getElementById('timer-pause').addEventListener('click', function() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    });
+
+    document.getElementById('timer-reset').addEventListener('click', function() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isStudy = true;
+        timeLeft = 30 * 60;
+        updateDisplay();
+    });
+
+    document.getElementById('set-study').addEventListener('click', function() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isStudy = true;
+        timeLeft = 30 * 60;
+        updateDisplay();
+    });
+
+    document.getElementById('set-break').addEventListener('click', function() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isStudy = false;
+        timeLeft = 60;
+        updateDisplay();
+    });
+
+    updateDisplay();
+
+    // -------------------------------------------------------------
+    // 3. ЖАТТЫҒУЛАР (Деректер)
+    // -------------------------------------------------------------
+    const exercisesData = {
+        safe: [
+            { id: 'vacuum', name: 'Вакуум (іш тарту)', desc: 'Ішті омыртқаға жабыстырып 5-10 сек ұстау.' },
+            { id: 'bridge', name: 'Көпірше (жамбас көтеру)', desc: 'Арқамен жатып, жамбасты жоғары көтеру.' },
+            { id: 'birddog', name: 'Құс-ит (Bird-Dog)', desc: 'Төрт аяқтап, қол-аяқты кезек созу.' },
+            { id: 'catcamel', name: 'Мысық-түйе', desc: 'Арқаны дөңгелектеп, бейтарапқа қайтару (белді тым майыстырмау).' }
+        ],
+        forbidden: [
+            { id: 'bend', name: 'Түзу аяқпен еңкею', desc: 'Дискіге ең үлкен қысым түсіреді.' },
+            { id: 'situp', name: 'Аяқты басып пресс жасау', desc: 'Белді доғалтып, грыжаны сығымдайды.' },
+            { id: 'deadlift', name: 'Салмақ көтеру (штанга)', desc: 'Ішкі қысымды көтеріп, дискіні жаруы мүмкін.' },
+            { id: 'running', name: 'Жүгіру (тіпті баяу)', desc: 'Соққы толқыны грыжаны тітіркендіреді.' }
+        ]
+    };
+
+    const completedExercises = JSON.parse(localStorage.getItem('completedEx')) || {};
+
+    function renderExercises() {
+        const safeContainer = document.getElementById('safe-exercises');
+        const forbiddenContainer = document.getElementById('forbidden-exercises');
+        safeContainer.innerHTML = '';
+        forbiddenContainer.innerHTML = '';
+
+        exercisesData.safe.forEach(ex => {
+            const done = completedExercises[ex.id] === true;
+            const div = document.createElement('div');
+            div.className = 'exercise-item';
+            div.innerHTML = `
+                <div class="exercise-info">
+                    <div class="exercise-icon icon-safe">✔️</div>
+                    <div><div class="exercise-name">${ex.name}</div><div class="exercise-desc">${ex.desc}</div></div>
+                </div>
+                <button class="check-btn ${done ? 'done' : ''}" data-id="${ex.id}">${done ? '✓' : ''}</button>
+            `;
+            safeContainer.appendChild(div);
+        });
+
+        exercisesData.forbidden.forEach(ex => {
+            const div = document.createElement('div');
+            div.className = 'exercise-item';
+            div.innerHTML = `
+                <div class="exercise-info">
+                    <div class="exercise-icon icon-forbidden">⛔</div>
+                    <div><div class="exercise-name">${ex.name}</div><div class="exercise-desc">${ex.desc}</div></div>
+                </div>
+            `;
+            forbiddenContainer.appendChild(div);
+        });
+
+        // Чек-бокстарға клик
+        document.querySelectorAll('.check-btn[data-id]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const isDone = completedExercises[id] === true;
+                if (isDone) {
+                    delete completedExercises[id];
+                } else {
+                    completedExercises[id] = true;
+                }
+                localStorage.setItem('completedEx', JSON.stringify(completedExercises));
+                renderExercises();
+                updateHomeStats();
+            });
+        });
+    }
+
+    // -------------------------------------------------------------
+    // 4. АУЫРСЫНУ КҮНДЕЛІГІ
+    // -------------------------------------------------------------
+    const painLogs = JSON.parse(localStorage.getItem('painLogs')) || [];
+
+    document.getElementById('pain-slider').addEventListener('input', function() {
+        document.getElementById('pain-value-display').textContent = this.value + ' / 10';
+    });
+
+    document.getElementById('save-pain').addEventListener('click', function() {
+        const value = parseInt(document.getElementById('pain-slider').value);
+        const note = document.getElementById('pain-note').value.trim();
+        const today = new Date().toISOString().split('T')[0];
+        const entry = { date: today, value: value, note: note || '-' };
+        // Бүгінге жазба бар ма?
+        const existingIndex = painLogs.findIndex(p => p.date === today);
+        if (existingIndex !== -1) {
+            painLogs[existingIndex] = entry;
+        } else {
+            painLogs.push(entry);
+        }
+        localStorage.setItem('painLogs', JSON.stringify(painLogs));
+        document.getElementById('pain-note').value = '';
+        renderPainHistory();
+        updateHomeStats();
+        alert('✅ Ауырсыну деңгейі сақталды!');
+    });
+
+    function renderPainHistory() {
+        const container = document.getElementById('pain-history');
+        if (painLogs.length === 0) {
+            container.innerHTML = '<div class="empty-state">Әзірге ешқандай жазба жоқ.</div>';
+            return;
+        }
+        const sorted = [...painLogs].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+        container.innerHTML = sorted.map(p => `
+            <div class="history-item">
+                <span>${p.date}</span>
+                <span><strong>${p.value}/10</strong> - ${p.note}</span>
+            </div>
+        `).join('');
+    }
+
+    // -------------------------------------------------------------
+    // 5. HOME БЕТІН ЖАҢАРТУ
+    // -------------------------------------------------------------
+    function updateHomeStats() {
+        // Ауырсыну
+        const today = new Date().toISOString().split('T')[0];
+        const todayPain = painLogs.find(p => p.date === today);
+        const summary = document.getElementById('today-pain-summary');
+        if (todayPain) {
+            summary.innerHTML = `😣 Ауырсыну: <strong>${todayPain.value}/10</strong> (${todayPain.note})`;
+        } else {
+            summary.innerHTML = '✅ Бүгін әзірге ауырсыну тіркелмеген.';
+        }
+
+        // Жаттығу статистикасы
+        const totalSafe = exercisesData.safe.length;
+        const doneCount = exercisesData.safe.filter(ex => completedExercises[ex.id] === true).length;
+        document.getElementById('exercises-done-today').textContent = `🏋️ ${doneCount}/${totalSafe} жасалды`;
+
+        // Ауырсыну графигі (соңғы 7 күн)
+        const chartContainer = document.getElementById('pain-chart');
+        const last7 = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            const found = painLogs.find(p => p.date === dateStr);
+            last7.push({ date: dateStr, value: found ? found.value : null });
+        }
+        const maxVal = 10;
+        chartContainer.innerHTML = last7.map(item => {
+            const height = item.value !== null ? (item.value / maxVal) * 70 : 0;
+            const color = item.value !== null ? (item.value > 6 ? '#c13b4b' : (item.value > 3 ? '#f5a623' : '#1a8a4a')) : '#eef3f8';
+            return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;">
+                        <div style="width:100%;max-width:28px;height:${height}px;background:${color};border-radius:6px 6px 0 0;transition:0.3s;"></div>
+                        <span style="font-size:9px;color:#6a7e91;">${item.value !== null ? item.value : '-'}</span>
+                    </div>`;
+        }).join('');
+    }
+
+    // -------------------------------------------------------------
+    // 6. ІСКЕ ҚОСУ
+    // -------------------------------------------------------------
+    renderExercises();
+    renderPainHistory();
+    updateHomeStats();
+
+    // Әр бет ашылғанда статистиканы жаңарту (опция)
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (this.dataset.page === 'page-home') updateHomeStats();
+            if (this.dataset.page === 'page-pain') renderPainHistory();
+        });
+    });
+
+    // Қолмен жаңарту үшін консольда көмекші функция
+    console.log('✅ Омыртқа App жүктелді! Деректер localStorage-та сақталады.');
+</script>
+</body>
+</html>
