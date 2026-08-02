@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Менің Омыртқам - Жеке Көмекші</title>
+    <title>Менің Омыртқам - Кеңейтілген</title>
+    <!-- PDF үшін кітапхана -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         /* ===== АЙНЫМАЛЫЛАР (жеңіл және қараңғы) ===== */
         :root {
@@ -26,6 +28,7 @@
             --badge-safe-text: #0b7e3d;
             --badge-forbidden-bg: #fde7ea;
             --badge-forbidden-text: #a11f2c;
+            --quote-bg: #e6f0fa;
         }
         [data-theme="dark"] {
             --bg: #121212;
@@ -47,6 +50,7 @@
             --badge-safe-text: #7ad0a0;
             --badge-forbidden-bg: #4a1a2a;
             --badge-forbidden-text: #f0a0b0;
+            --quote-bg: #1a2a3a;
         }
 
         * {
@@ -87,7 +91,6 @@
         }
         .theme-toggle:active { transform: scale(0.95); }
 
-        /* Навигация */
         .nav {
             position: fixed;
             bottom: 0;
@@ -138,7 +141,6 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* Карточка */
         .card {
             background: var(--card);
             border-radius: 20px;
@@ -156,8 +158,18 @@
             align-items: center;
             gap: 8px;
         }
+        .quote-box {
+            background: var(--quote-bg);
+            padding: 16px;
+            border-radius: 16px;
+            font-style: italic;
+            font-size: 15px;
+            text-align: center;
+            color: var(--text);
+            border-left: 4px solid var(--btn-primary);
+            transition: 0.3s;
+        }
 
-        /* Таймер */
         .timer-display {
             font-size: 44px;
             font-weight: 700;
@@ -209,7 +221,6 @@
         .btn-danger { background: var(--btn-danger); color: white; }
         .btn:active { transform: scale(0.96); }
 
-        /* Дыбыс таңдау */
         .sound-selector {
             display: flex;
             gap: 10px;
@@ -231,8 +242,21 @@
             background: var(--btn-primary);
             color: white;
         }
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .volume-control input[type="range"] {
+            flex: 1;
+            accent-color: var(--btn-primary);
+            background: var(--slider-track);
+            border-radius: 10px;
+            height: 6px;
+        }
+        .volume-control span { font-size: 14px; min-width: 45px; text-align: right; }
 
-        /* Жаттығу тізімі */
         .exercise-item {
             display: flex;
             align-items: center;
@@ -255,7 +279,6 @@
         }
         .check-btn.done { background: var(--btn-success); border-color: var(--btn-success); color: white; }
 
-        /* Жаттығу қосу формасы */
         .add-exercise-form {
             display: flex;
             flex-direction: column;
@@ -272,7 +295,6 @@
         }
         .add-exercise-form .btn { flex: none; }
 
-        /* Ауырсыну күнделігі */
         .slider-container input { width: 100%; accent-color: var(--btn-primary); height: 6px; background: var(--slider-track); border-radius: 10px; }
         .pain-value { font-size: 28px; font-weight: 700; color: var(--accent); text-align: center; }
         .pain-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); }
@@ -282,11 +304,19 @@
         }
         .empty-state { text-align: center; color: var(--text-secondary); padding: 20px 0; font-size: 14px; }
 
-        /* Кеңестер */
         .tip-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
         .tip-item:last-child { border-bottom: none; }
         .tip-item strong { display: block; font-size: 14px; color: var(--accent); }
         .tip-item p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* PDF экспорттауға арналған жасырын блок */
+        #pdf-content {
+            display: none;
+            background: white;
+            color: black;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
 
         @media (max-width: 400px) {
             .timer-display { font-size: 36px; }
@@ -302,6 +332,10 @@
 
 <!-- === БЕТ 1: ҮЙ === -->
 <div id="page-home" class="page active">
+    <div class="card">
+        <h3>💪 Күнделікті мотивация</h3>
+        <div class="quote-box" id="daily-quote">«Денсаулық – бақыттың кілті»</div>
+    </div>
     <div class="card">
         <h3>👋 Бүгінгі жағдай</h3>
         <div id="today-pain-summary" style="font-size: 15px;">Ауырсыну дерегі жоқ</div>
@@ -346,7 +380,22 @@
                 <button data-sound="alarm">🚨 Сигнал</button>
                 <button data-sound="beep">📳 Дыбыс</button>
             </div>
+            <div class="volume-control">
+                <span>🔈</span>
+                <input type="range" id="volumeControl" min="0" max="100" value="50">
+                <span id="volumeLabel">50%</span>
+            </div>
         </div>
+    </div>
+    <div class="card">
+        <h3>📢 Еске салғыш (Push)</h3>
+        <button class="btn btn-primary" id="enableNotifications">🔔 Хабарламаны қосу</button>
+        <p style="font-size:12px; color:var(--text-secondary); margin-top:8px;">Қосылса, әр сағат сайын «тұрып, жаттығу жаса» деп еске салады.</p>
+    </div>
+    <div class="card">
+        <h3>📄 Есеп шығару (PDF)</h3>
+        <button class="btn btn-success" id="exportPDF">📥 PDF-ке сақтау</button>
+        <p style="font-size:12px; color:var(--text-secondary); margin-top:8px;">Соңғы 30 күндік ауырсыну және жаттығу статистикасы.</p>
     </div>
     <div class="card">
         <h3>🔔 Ереже</h3>
@@ -407,6 +456,7 @@
         <div class="tip-item"><strong>🚶 Қозғалыс</strong><p>Жұп арасында 10 минут серуендеңіз. Баспалдақпен көтерілу пайдалы.</p></div>
         <div class="tip-item"><strong>🧊 Ауырса</strong><p>Суық компресс (орамалға мұз) белге 10 минутқа қою – ісінуді басады.</p></div>
         <div class="tip-item"><strong>💬 Профессор</strong><p>Кураторға диагнозыңызды айтып, тұрып тыңдауға рұқсат сұраңыз.</p></div>
+        <div class="tip-item"><strong>🏋️ Турник пен Брусья</strong><p>Турникте тартылу мен брусьяға <strong style="color:var(--btn-danger);">ТЫЙЫМ</strong>. Тек дәрігер рұқсатымен турникте асылып тұруға болады.</p></div>
     </div>
 </div>
 
@@ -427,6 +477,17 @@
     <button class="nav-btn" data-page="page-tips">
         <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Кеңестер
     </button>
+</div>
+
+<!-- PDF мазмұны (жасырын) -->
+<div id="pdf-content">
+    <h2>🦴 Менің Омыртқам - Денсаулық есебі</h2>
+    <p>Күні: <span id="pdf-date"></span></p>
+    <h3>Ауырсыну күнделігі (соңғы 30 күн)</h3>
+    <div id="pdf-pain-list"></div>
+    <h3>Жаттығу статистикасы</h3>
+    <p id="pdf-exercise-stats"></p>
+    <p style="margin-top:20px; font-size:12px; color:gray;">Бұл есеп «Менің Омыртқам» қосымшасы арқылы жасалды.</p>
 </div>
 
 <script>
@@ -461,7 +522,32 @@
     });
 
     // ================================================================
-    // 3. ТАЙМЕР + ДЫБЫСТАР
+    // 3. МОТИВАЦИЯ (Күнделікті сөз)
+    // ================================================================
+    const quotes = [
+        "Денсаулық – бақыттың кілті.",
+        "Кішкене қадамдар үлкен өзгерістерге әкеледі.",
+        "Бүгінгі күн – жаңа бастама.",
+        "Арқаңды тік ұста – омыртқаң риза болады.",
+        "Төзімділік – жеңістің жартысы.",
+        "Денеңді тыңда, ол саған дұрыс жолды көрсетеді.",
+        "Әр жаттығу – болашаққа салған инвестиция.",
+        "Ауырсыну – бұл ескерту, үнсіздік емес.",
+        "Сіздің денсаулығыңыз – сіздің байлығыңыз.",
+        "Қозғалыс – өмірдің қуаты.",
+        "Баяу жүрсең де, тоқтама.",
+        "Күн сайын бір жаттығу – денсаулыққа бір адым."
+    ];
+    function updateQuote() {
+        const today = new Date().toISOString().split('T')[0];
+        // Күнге байланысты тұрақты цитата алу үшін
+        const index = parseInt(today.replace(/-/g, '')) % quotes.length;
+        document.getElementById('daily-quote').textContent = `«${quotes[index]}»`;
+    }
+    updateQuote();
+
+    // ================================================================
+    // 4. ТАЙМЕР + ДЫБЫС ДЕҢГЕЙІ
     // ================================================================
     let timerInterval = null;
     let timeLeft = 30 * 60;
@@ -470,8 +556,20 @@
     const label = document.getElementById('timer-label');
     const workInput = document.getElementById('workMinutes');
     const breakInput = document.getElementById('breakSeconds');
+    const volumeSlider = document.getElementById('volumeControl');
+    const volumeLabel = document.getElementById('volumeLabel');
 
-    // Дыбыс генераторлары (Web Audio API)
+    // Дыбыс деңгейін жүктеу
+    let currentVolume = parseInt(localStorage.getItem('appVolume')) || 50;
+    volumeSlider.value = currentVolume;
+    volumeLabel.textContent = currentVolume + '%';
+
+    volumeSlider.addEventListener('input', function() {
+        currentVolume = parseInt(this.value);
+        volumeLabel.textContent = currentVolume + '%';
+        localStorage.setItem('appVolume', currentVolume);
+    });
+
     function playSound(type) {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -479,17 +577,16 @@
             const gain = ctx.createGain();
             osc.connect(gain);
             gain.connect(ctx.destination);
-            gain.gain.value = 0.3;
+            const vol = currentVolume / 100; // 0-1 аралығы
+            gain.gain.value = vol * 0.5; // тым қатты емес
 
             if (type === 'bell') {
-                // Қоңырау – жиілік өзгереді
                 osc.frequency.setValueAtTime(800, ctx.currentTime);
                 osc.frequency.setValueAtTime(1200, ctx.currentTime + 0.1);
                 osc.frequency.setValueAtTime(800, ctx.currentTime + 0.2);
                 osc.start(ctx.currentTime);
                 osc.stop(ctx.currentTime + 0.4);
             } else if (type === 'alarm') {
-                // Сигнал – үзікті дыбыс
                 osc.frequency.value = 600;
                 osc.start(ctx.currentTime);
                 osc.stop(ctx.currentTime + 0.2);
@@ -499,7 +596,7 @@
                     const gain2 = ctx2.createGain();
                     osc2.connect(gain2);
                     gain2.connect(ctx2.destination);
-                    gain2.gain.value = 0.3;
+                    gain2.gain.value = (currentVolume/100) * 0.5;
                     osc2.frequency.value = 600;
                     osc2.start(ctx2.currentTime);
                     osc2.stop(ctx2.currentTime + 0.2);
@@ -520,7 +617,7 @@
             this.classList.add('active-sound');
             selectedSound = this.dataset.sound;
             localStorage.setItem('selectedSound', selectedSound);
-            playSound(selectedSound); // сынап көру
+            playSound(selectedSound);
         });
     });
 
@@ -538,7 +635,7 @@
             timeLeft = breakSec;
             playSound(selectedSound);
             if (navigator.vibrate) navigator.vibrate(300);
-            alert('🔔 30 минут отырдыңыз! Тұрып, демалу уақыты.');
+            alert('🔔 Отыру аяқталды! Тұрып, демалу уақыты.');
         } else {
             isStudy = true;
             const workMin = parseInt(workInput.value) || 30;
@@ -557,7 +654,6 @@
                 clearInterval(timerInterval);
                 timerInterval = null;
                 switchMode();
-                // Автоматты түрде келесі режимге қайта бастау
                 setTimeout(() => {
                     if (!timerInterval) {
                         timerInterval = setInterval(innerTick, 1000);
@@ -583,7 +679,6 @@
         updateDisplay();
     });
 
-    // Уақыт өрістері өзгергенде қалпына келтіру
     workInput.addEventListener('change', function() {
         if (!timerInterval && isStudy) {
             timeLeft = parseInt(this.value) * 60 || 30*60;
@@ -596,11 +691,99 @@
             updateDisplay();
         }
     });
-
     updateDisplay();
 
     // ================================================================
-    // 4. ЖАТТЫҒУЛАР (бастапқы + қолдан қосу)
+    // 5. PUSH-ХАБАРЛАМА
+    // ================================================================
+    let notificationInterval = null;
+    document.getElementById('enableNotifications').addEventListener('click', function() {
+        if (!('Notification' in window)) {
+            alert('Браузеріңіз Push-хабарламаны қолдамайды.');
+            return;
+        }
+        if (Notification.permission === 'granted') {
+            alert('Хабарламалар қосылған! Әр сағат сайын еске саламын.');
+            startNotificationReminder();
+        } else if (Notification.permission === 'denied') {
+            alert('Сіз хабарламаны бұғаттағансыз. Браузер параметрлерінен рұқсат беріңіз.');
+        } else {
+            Notification.requestPermission().then(perm => {
+                if (perm === 'granted') {
+                    alert('✅ Хабарламалар қосылды!');
+                    startNotificationReminder();
+                } else {
+                    alert('Хабарлама рұқсаты берілмеді.');
+                }
+            });
+        }
+    });
+
+    function startNotificationReminder() {
+        if (notificationInterval) clearInterval(notificationInterval);
+        // Әр 60 минут сайын (3600 секунд)
+        notificationInterval = setInterval(() => {
+            if (Notification.permission === 'granted') {
+                new Notification('🦴 Менің Омыртқам', {
+                    body: 'Ұзақ отырма! Тұрып, «Құс-ит» жаттығуын жаса немесе 1 минут жүр.',
+                    icon: '🦴' // эмодзи иконка ретінде
+                });
+            }
+        }, 3600000); // 1 сағат
+        // Бірден сынақ ретінде жіберу
+        if (Notification.permission === 'granted') {
+            new Notification('🦴 Еске салғыш қосылды!', {
+                body: 'Енді әр сағат сайын сізге хабарлама келеді.',
+            });
+        }
+    }
+
+    // Егер бұрын рұқсат берілсе, автоматты түрде іске қосу
+    if (Notification.permission === 'granted') {
+        startNotificationReminder();
+    }
+
+    // ================================================================
+    // 6. PDF-ЕСЕП
+    // ================================================================
+    document.getElementById('exportPDF').addEventListener('click', function() {
+        const logs = JSON.parse(localStorage.getItem('painLogs')) || [];
+        const exercises = JSON.parse(localStorage.getItem('exercises')) || { safe: [], forbidden: [] };
+        const completed = JSON.parse(localStorage.getItem('completedEx')) || {};
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('pdf-date').textContent = today;
+
+        // Соңғы 30 күн
+        const sorted = [...logs].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 30);
+        const listHtml = sorted.map(p => `<p>${p.date} - ${p.value}/10 (${p.note})</p>`).join('');
+        document.getElementById('pdf-pain-list').innerHTML = listHtml || '<p>Дерек жоқ</p>';
+
+        const totalSafe = exercises.safe.length;
+        const doneCount = exercises.safe.filter(ex => completed[ex.id] === true).length;
+        document.getElementById('pdf-exercise-stats').textContent = 
+            `Рұқсат етілген жаттығулар: ${totalSafe}, орындалғаны: ${doneCount}.`;
+
+        // PDF генерациясы
+        const element = document.getElementById('pdf-content');
+        element.style.display = 'block';
+        const opt = {
+            margin:       0.5,
+            filename:     `Omirtqam_Esebi_${today}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save().then(() => {
+            element.style.display = 'none';
+        }).catch(err => {
+            element.style.display = 'none';
+            alert('PDF шығару кезінде қате кетті: ' + err);
+        });
+    });
+
+    // ================================================================
+    // 7. ЖАТТЫҒУЛАР
     // ================================================================
     const defaultExercises = {
         safe: [
@@ -617,9 +800,7 @@
         ]
     };
 
-    // Жүктеу немесе бастапқы деректер
     let exercises = JSON.parse(localStorage.getItem('exercises')) || defaultExercises;
-    // Ескі форматтан құтылу үшін, егер жоқ болса, бастапқыны сақтаймыз
     if (!exercises.safe || !exercises.forbidden) {
         exercises = defaultExercises;
         localStorage.setItem('exercises', JSON.stringify(exercises));
@@ -672,17 +853,12 @@
         });
     }
 
-    // Қолдан жаттығу қосу
     document.getElementById('addExerciseBtn').addEventListener('click', function() {
         const name = document.getElementById('newExName').value.trim();
         const desc = document.getElementById('newExDesc').value.trim();
         const type = document.getElementById('newExType').value;
         if (!name) { alert('Жаттығу атын енгізіңіз!'); return; }
-        const newEx = {
-            id: 'custom_' + Date.now(),
-            name: name,
-            desc: desc || 'Сипаттама жоқ'
-        };
+        const newEx = { id: 'custom_' + Date.now(), name: name, desc: desc || 'Сипаттама жоқ' };
         if (type === 'safe') exercises.safe.push(newEx);
         else exercises.forbidden.push(newEx);
         localStorage.setItem('exercises', JSON.stringify(exercises));
@@ -693,7 +869,7 @@
     });
 
     // ================================================================
-    // 5. АУЫРСЫНУ КҮНДЕЛІГІ
+    // 8. АУЫРСЫНУ
     // ================================================================
     const painLogs = JSON.parse(localStorage.getItem('painLogs')) || [];
 
@@ -729,7 +905,7 @@
     }
 
     // ================================================================
-    // 6. HOME БЕТІН ЖАҢАРТУ
+    // 9. HOME СТАТИСТИКА
     // ================================================================
     function updateHomeStats() {
         const today = new Date().toISOString().split('T')[0];
@@ -763,24 +939,17 @@
     }
 
     // ================================================================
-    // 7. ІСКЕ ҚОСУ
+    // 10. ІСКЕ ҚОСУ
     // ================================================================
     renderExercises();
     renderPainHistory();
     updateHomeStats();
 
-    // ================================================================
-    // 8. ҚОСЫМША ИДЕЯЛАР (кодтан тыс)
-    // ================================================================
-    console.log('✅ Қосымша не қосуға болады?');
-    console.log('1. Статистика (апталық/айлық есеп)');
-    console.log('2. Жетістіктер (үздіксіз 7 күн жаттығу, т.б.)');
-    console.log('3. Еске салғыш (браузер push-хабарлама)');
-    console.log('4. Дәрігерге PDF-есеп экспорттау');
-    console.log('5. Синхрондау (серверге жүктеу)');
-    console.log('6. Мотивациялық сөздер күн сайын');
-    console.log('7. Дыбыс деңгейін реттеу');
-    console.log('8. Ұйқы режимі (түнгі уақытта сигналды өшіру)');
+    console.log('✅ Барлық мүмкіндіктер қосылды:');
+    console.log('📢 Push-хабарлама (сайт рұқсат берсе)');
+    console.log('📄 PDF-есеп (Таймер бетінде)');
+    console.log('💪 Күнделікті мотивация (Үй бетінде)');
+    console.log('🔊 Дыбыс деңгейі (Таймер бетінде)');
 </script>
 </body>
 </html>
